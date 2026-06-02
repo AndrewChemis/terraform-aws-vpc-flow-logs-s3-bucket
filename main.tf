@@ -295,7 +295,7 @@ module "kms_key" {
   description             = "KMS key for VPC Flow Logs"
   deletion_window_in_days = 10
   enable_key_rotation     = true
-  policy                  = join("", data.aws_iam_policy_document.kms.*.json)
+  policy                  = join("", data.aws_iam_policy_document.kms[*].json)
 
   context = module.this.context
 
@@ -321,7 +321,7 @@ module "s3_log_storage_bucket" {
 
   acl                     = var.acl
   s3_object_ownership     = local.effective_ownership
-  source_policy_documents = data.aws_iam_policy_document.bucket.*.json
+  source_policy_documents = data.aws_iam_policy_document.bucket[*].json
 
   bucket_notifications_enabled = var.bucket_notifications_enabled
   bucket_notifications_type    = var.bucket_notifications_type
