@@ -105,6 +105,24 @@ data "aws_iam_policy_document" "kms" {
         "delivery.logs.amazonaws.com"
       ]
     }
+
+    # Mirror the same source scoping used on the bucket policy for confused-deputy protection.
+    dynamic "condition" {
+      for_each = local.use_org_condition ? [1] : []
+      content {
+        test     = "StringEquals"
+        variable = "aws:SourceOrgID"
+        values   = [var.flow_logs_source_org_id]
+      }
+    }
+    dynamic "condition" {
+      for_each = local.use_account_condition ? [1] : []
+      content {
+        test     = "StringEquals"
+        variable = "aws:SourceAccount"
+        values   = var.flow_logs_source_account_ids
+      }
+    }
   }
 }
 
@@ -179,9 +197,9 @@ data "aws_iam_policy_document" "bucket" {
     }
   }
 
-  # Grant the delivery service permission to read the bucket ACL so it can confirm
-  # the bucket-owner-full-control ACL requirement (still needed even for
-  # BucketOwnerEnforced buckets — AWS calls GetBucketAcl before writing).
+  # Grant the delivery service permission to read the bucket ACL. The log-delivery service calls
+  # GetBucketAcl as part of its pre-write checks regardless of Object Ownership mode; this is a
+  # bucket-policy read and is unrelated to ACL enforcement.
   statement {
     sid = "AWSLogDeliveryAclCheck"
 

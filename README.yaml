@@ -51,6 +51,8 @@ introduction: |-
   (to authorize all accounts in an AWS Organization) or `flow_logs_source_account_ids`
   (to list individual accounts). These add `aws:SourceOrgID` / `aws:SourceAccount` +
   `aws:SourceArn` conditions to the bucket delivery policy for confused-deputy protection.
+  The KMS key policy is scoped with the same `aws:SourceOrgID` / `aws:SourceAccount` conditions
+  so cross-account key usage is equally protected.
 
   **`BucketOwnerEnforced` compatibility**: When `s3_object_ownership` is `BucketOwnerEnforced`
   (the recommended setting, and the default when `null` is passed), the module omits the
@@ -80,7 +82,7 @@ usage: |-
 
     module "flow_logs" {
       source  = "cloudposse/vpc-flow-logs-s3-bucket/aws"
-      version = "0.9.0"
+      version = "0.8.0"
 
       namespace  = "eg"
       stage      = "test"
@@ -95,7 +97,7 @@ usage: |-
     # Deployed in the Log Archive account; VPC Flow Logs created in spoke accounts.
     module "flow_logs_bucket" {
       source  = "cloudposse/vpc-flow-logs-s3-bucket/aws"
-      version = "0.9.0"
+      version = "0.8.0"
 
       namespace  = "eg"
       stage      = "prod"
